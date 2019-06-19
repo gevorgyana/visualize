@@ -14,7 +14,7 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "no.tornado:tornadofx:1.7.17"
-
+    compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.0'
 }
 
 javafx {
@@ -30,4 +30,3 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
-
