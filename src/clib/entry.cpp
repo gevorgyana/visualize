@@ -14,6 +14,9 @@
 #include <exception>
 #include <string>
 
+//include set to fix temporary bug with removal
+#include <set>
+
 using std::string;
 using std::cout;
 using std::exception;
@@ -42,10 +45,16 @@ void log(const char* msg)
 // a bucket to store object ids, simply to interface with the tree
 class Bucket : Hashable
 {
-    Bucket(const unsigned &key)
+public:
+    explicit Bucket(const unsigned &key)
             : Hashable(key)
     {
 
+    }
+
+    unsigned getKey() const override
+    {
+        return m_key;
     }
 };
 
@@ -62,20 +71,38 @@ public:
     void insert(int key)
     {
         log("The tree wrapper is about to handle insertion");
+        //Bucket bucket(key);
+        //m_src -> insert(bucket);
+        m_set.insert(key);
     }
 
     bool is_inside_of(int key){
         log("The tree wrapper is about to handle membership check");
-        return true;
+        //Bucket bucket(key);
+        //auto info = m_src -> search(bucket);
+        //return info.first != nullptr;
+        auto pos = m_set.find(key);
+        for (auto i : m_set)
+        {
+            cout << i << endl;
+            if (i == key)
+                return true;
+        }
+        return false;
     }
 
     void remove(int key)
     {
+
         log("The tree wrapper is about to handle removal");
+        //Bucket bucket(key);
+        //m_src -> remove(bucket);
+        m_set.erase(m_set.find(key));
     }
 
 private:
     B_tree<Bucket> *m_src;
+    std::set <int> m_set;
 };
 
 // global variable for now

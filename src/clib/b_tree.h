@@ -171,35 +171,38 @@ public:
     }
 
     void remove (shared_node_t <T> src, T key) {
-        if (find_key_in_node(src)) {
-            unsigned pos = find_key_in_node(src);
+        if (find_key_in_node(src, key)) {
+            unsigned pos = find_key_in_node(src, key);
 
             // leaf
             if (pos && src -> m_is_leaf) {
                 unsigned i = pos;
                 while (i <= get_cnt(src)) {
-                    get_key(src, i) = get_key(src, i + 1);
+                    //get_key(src, i) = get_key(src, i + 1);
+                    src -> m_keys[i] = src -> m_keys[i + 1];
+                    i++;
                 }
                 --get_cnt(src);
             } else if (pos) {
                 if (pos >= 2 && get_cnt(get_child(src, pos - 1)) >= m_balance_factor) {
                     shared_node_t <T> pred_p = get_child(src, pos - 1);
-                    shared_node_t <T> pred = get_key(pred_p, get_cnt(pred_p));
-                    remove(pred_p, pred);
-                    get_key(src, pos) = pred;
+                    shared_ptr <T> pred = make_shared<T>( get_key(pred_p, get_cnt(pred_p)));
+                    remove(pred_p, *pred);
+                    //get_key(src, pos) = pred;
+                    src -> m_keys[pos] = pred;
                 } else if (pos <= get_cnt(src) && get_cnt(get_child(src, pos + 1)) >= m_balance_factor) {
                     shared_node_t <T> succ_p = get_child(src, pos + 1);
-                    shared_node_t <T> succ = get_key(succ_p, 1);
-                    remove(succ_p, succ);
-                    get_key(src, pos) = succ;
+                    shared_ptr <T> succ = make_shared<T>(get_key(succ_p, 1));
+                    remove(succ_p, *succ);
+                    src -> m_keys[pos] = succ;
                 } else if (pos >= 2 && pos <= get_cnt(src)
                             && (get_cnt(get_child(src, pos - 1)) == (get_cnt(get_child(src, pos + 1)))
                             && (get_cnt(get_child(src, pos + 1))  == m_balance_factor - 1)))
                 {
                     shared_node_t <T> y = get_child(src, pos - 1);
                     shared_node_t <T> z = get_child(src, pos + 1);
-                    shared_node_t <T> k = get_key(src, pos);
-                    get_key(y, get_cnt(y) + 1) = k;
+                    shared_ptr <T> k = make_shared<T>(get_key(src, pos));
+                    y -> m_keys[get_cnt(y) + 1] = k;
 
                     ++get_cnt(y);
 
@@ -207,7 +210,8 @@ public:
 
                     unsigned j = 1;
                     while (j <= get_cnt(z)) {
-                        get_key(y, get_cnt(y) + j) = get_key(z, j);
+                        //get_key(y, get_cnt(y) + j) = get_key(z, j);
+                        y -> m_keys[get_cnt(y) + j] = make_shared<T>(get_key(z, j));
                         get_child(y, get_cnt(y) + j + 1) = get_child(z, j + 1);
                         ++j;
                     }
@@ -217,7 +221,8 @@ public:
                     // затереть src
                     j = pos;
                     while (j <= get_cnt(src) - 1) {
-                        get_key(src, j) = get_key(src, j + 1);
+                        //get_key(src, j) = get_key(src, j + 1);
+                        src -> m_keys[j] = make_shared<T>(get_key(src, j + 1));
                         ++j;
                     }
 
@@ -232,7 +237,7 @@ public:
             else
             {
                 unsigned i = 1;
-                while (i <= get_cnt(src) && key > get_key(src, i)) {
+                while (i <= get_cnt(src) && key.getKey() > get_key(src, i)) {
                     ++i;
                 }
                 shared_node_t <T> c = get_child(src, i);
@@ -248,7 +253,8 @@ public:
                         // move c to the right
                         unsigned k = 1;
                         while (k <= get_cnt(c)) {
-                            get_key(c, k + 1) = get_key(c, k);
+                            //get_key(c, k + 1) = get_key(c, k);
+                            c -> m_keys[k + 1] = make_shared<T>(get_key(c, k));
                             ++k;
                         }
                         k = 1;
@@ -257,9 +263,11 @@ public:
                             ++k;
                         }
 
-                        get_key(c, 1) = get_key(src, pos);
+                        //get_key(c, 1) = get_key(src, pos);
+                        c -> m_keys[1] = make_shared<T>(get_key(src, pos));
                         get_child(c, 1) = get_child(l, get_cnt(l) + 1);
-                        get_key(src, pos) = get_key(l, get_cnt(l));
+                        //get_key(src, pos) = get_key(l, get_cnt(l));
+                        src -> m_keys[pos] = make_shared<T>(get_key(l, get_cnt(l)));
                         --(get_cnt(l));
 
                         remove(c, key);
@@ -269,19 +277,24 @@ public:
                     else if (i <= get_cnt(src) && get_cnt(get_child(src, i + 1)) >= m_balance_factor) {
                         shared_node_t <T> c = get_child(src, pos);
                         shared_node_t <T> r = get_child(src, pos + 1);
-                        get_key(c, get_cnt(c) + 1) = get_key(src, pos);
+                        //get_key(c, get_cnt(c) + 1) = get_key(src, pos);
+                        c -> m_keys[get_cnt(c) + 1] = make_shared<T>(get_key(src, pos));
                         get_child(c, get_cnt(c) + 2) = get_child(r, 1);
-                        get_key(src, pos) = get_child(src, pos + 1);
+                        //get_key(src, pos) = get_key(src, pos + 1);
+                        src -> m_keys[pos] = make_shared<T>(get_key(src, pos + 1));
                         ++get_cnt(c);
                         unsigned j = 1;
                         while (j <= get_cnt(r) - 1) {
-                            get_key(r, j) = get_key(r, j + 1);
+                            //get_key(r, j) = get_key(r, j + 1);
+                            r -> m_keys[j] = make_shared<T>(get_key(r, j + 1));
                             ++j;
+                            std::cout << "HERE8\n"<< std::endl;
                         }
                         j = 0;
                         while (j <= get_cnt(r)) {
                             get_child(r, j) = get_child(r, j + 1);
                             ++j;
+                            std::cout << "HERE9\n"<< std::endl;
                         }
                         --get_cnt(r);
                         remove(c, key);
@@ -296,38 +309,40 @@ public:
                     //shared_node_t <T> l = get_child(src, i - 1);
                     shared_node_t <T> r = get_child(src, i + 1);
                     shared_node_t <T> c = get_child(src, i);
-                    get_key(c, get_cnt(c) + 1) = get_key(src, pos);
+                    //get_key(c, get_cnt(c) + 1) = get_key(src, pos);
+                    c -> m_keys[get_cnt(c) + 1] = make_shared<T>(get_key(src, pos));
                     ++(get_cnt(c));
 
                     unsigned k = 1;
                     while (k <= get_cnt(r))
                     {
-                        get_key(c, get_cnt(c) + k) = get_key(r, k);
+                        //get_key(c, get_cnt(c) + k) = get_key(r, k);
+                        c -> m_keys[get_cnt(c) + k] = make_shared<T>(get_key(r, k));
                         get_child(c, get_cnt(c) + k) = get_child(r, k);
                         ++k;
+                        std::cout << "HERE11\n"<< std::endl;
                     }
                     get_child(c, get_cnt(c) + get_cnt(r) + 1) = get_child(r, get_cnt(r) + 1);
                     get_cnt(c) += get_cnt(r) + 1;
 
                     k = pos;
                     while (k <= get_cnt(src) - 1) {
-                        get_key(src, k) = get_key(src, k + 1);
+                        //get_key(src, k) = get_key(src, k + 1);
+                        src -> m_keys[k] = make_shared<T>(get_key(src, k + 1));
                         ++k;
+                        std::cout << "HERE12\n"<< std::endl;
                     }
 
                     k = pos;
                     while (k <= get_cnt(src) - 1) {
                         get_child(src, k + 1) = get_child(src, k + 2);
+                        std::cout << "HERE14\n"<< std::endl;
                     }
 
                     remove(c, key);
                 }
             }
         }
-
-
-
-
     }
 
     void stackWrite() {
@@ -383,7 +398,7 @@ private:
         unsigned i;
         bool found = false;
         for (i = 1; i <= get_cnt(src); ++i) {
-            if (get_key(src, i) == key.getkey()) {
+            if (get_key(src, i) == key.getKey()) {
                 return i;
             }
         }
