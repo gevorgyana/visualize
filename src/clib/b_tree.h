@@ -24,6 +24,7 @@ using std::vector;
 template <typename T>
 using shared_node_t = shared_ptr<Node <T>>;
 
+/*
 class Book {
 public:
 
@@ -34,6 +35,20 @@ public:
     }
 
 private:
+    unsigned m_key;
+};
+*/
+
+class Hashable {
+public:
+
+    explicit Hashable(const unsigned &key) : m_key(key) {}
+
+    virtual unsigned getKey() const {
+        return m_key;
+    }
+
+protected:
     unsigned m_key;
 };
 

@@ -1,3 +1,12 @@
+/*
+ * THIS IS IMPLEMENTATION OF THE CLIB.
+ * THIS LIBRARY CAN STORE OBJECT DIFFERENTIATED BY THEIR ID'S,
+ * WHICH ARE SIMPLE UNSIGNED INTEGER VALUES. THE LIBRARY
+ * IS CAPABLE OF MANAGING RESOURCES. THIS SIMPLY A DELEGATE TO
+ * A SET OF TESTED AND RELIABLE CPP DATA STRUCTURES. IT IS NOT
+ * RECOMMENDED CURRENTLY TO INSERT MULTIPLE INTS OF THE SAME VALUE
+ * */
+
 #include "entry.h"
 #include "b_tree.h"
 
@@ -17,7 +26,7 @@ struct invalid_ptr : public exception {
     }
 };
 
-// use custom logging, add \n
+// use custom logging, adds newline character
 void log(string msg)
 {
     cout << "===CLIB MESSAGE===" << endl
@@ -30,42 +39,52 @@ void log(const char* msg)
     log(str_mesg);
 }
 
-// edit this class to specify the actual behavior of functions found in header
+// a bucket to store object ids, simply to interface with the tree
+class Bucket : Hashable
+{
+    Bucket(const unsigned &key)
+            : Hashable(key)
+    {
+
+    }
+};
+
+// edit this class to specify the actual behavior of functions
 class Wrapper
 {
 public:
 
-    Wrapper(B_tree<int> *src) : m_src(src)
+    Wrapper(B_tree<Bucket> *src) : m_src(src)
     {
-        cout << "initialized;\n";
+        log("The tree wrapper has been given a tree pointer");
     }
 
     void insert(int key)
     {
-        cout << "insert;\n";
-        cout.flush();
+        log("The tree wrapper is about to handle insertion");
     }
 
     bool is_inside_of(int key){
+        log("The tree wrapper is about to handle membership check");
         return true;
     }
 
     void remove(int key)
     {
-        cout << "remove;\n";
-        cout.flush();
+        log("The tree wrapper is about to handle removal");
     }
 
 private:
-    B_tree<int> *m_src;
+    B_tree<Bucket> *m_src;
 };
 
+// global variable for now
 Wrapper* wr = nullptr;
 
 // wrapping methods
 void btree_init(int expansion_factor)
 {
-    wr = new Wrapper(new B_tree<int>(expansion_factor));
+    wr = new Wrapper(new B_tree<Bucket>(expansion_factor));
 }
 
 bool btree_is_inside_of(int key) {
@@ -82,7 +101,7 @@ bool btree_is_inside_of(int key) {
     }
 }
 
-void btree_remove_key(int key)
+void modify(int oper_type, int key)
 {
     try {
 
@@ -90,25 +109,31 @@ void btree_remove_key(int key)
             throw invalid_ptr();
         }
 
-        wr->remove(key);
+        switch (oper_type)
+        {
+            case 0:
+                wr -> insert(key);
+                break;
+            case 1:
+                wr -> remove(key);
+                break;
+            default:
+                log("Unable to determie what action to take");
+                break;
+        }
     } catch (invalid_ptr& e)
     {
         log(e.what());
     }
 }
 
+
 void btree_insert_key(int key)
 {
-    try {
+    modify(0, key);
+}
 
-        if (!wr)
-        {
-            throw invalid_ptr();
-        }
-
-        wr->insert(key);
-    } catch (invalid_ptr& e)
-    {
-        log(e.what());
-    }
+void btree_remove_key(int key)
+{
+    modify(1, key);
 }
