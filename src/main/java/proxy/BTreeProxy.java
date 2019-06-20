@@ -13,13 +13,15 @@ public class BTreeProxy {
                 (INSTANCE);
 
         // declarations
-        void insert_key(int key);
+        void btree_insert_key(int key);
+        void btree_init(int expansion_factor);
     }
 
     public int call()
     {
-        CLibrary.SINSTANCE.insert_key(1);
-        CLibrary.SINSTANCE.insert_key(2);
+        CLibrary.SINSTANCE.btree_init(2);
+        CLibrary.SINSTANCE.btree_insert_key(1);
+        CLibrary.SINSTANCE.btree_insert_key(2);
         return 0;
     }
 }

@@ -3,4 +3,4 @@ project(clib)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_library(clib SHARED library.cpp library.h b_tree.h)
+add_library(clib SHARED entry.cpp entry.h b_tree.h)
