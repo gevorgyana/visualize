@@ -164,3 +164,8 @@ void btree_remove_key(int key)
 {
     modify(1, key);
 }
+
+void btree_release()
+{
+    delete wr;
+}

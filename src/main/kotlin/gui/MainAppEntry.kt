@@ -10,10 +10,9 @@ class MyApp: App(MyView::class)
 class MyView: View() {
     val controller: MyController by inject()
     val cl : BTreeProxy = BTreeProxy()
-    val re = cl.call()
 
     override val root = vbox {
-        button("Press me ${re}")
+        button("Press me ${1}")
         label("Waiting")
         listview(controller.values)
     }
