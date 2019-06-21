@@ -16,13 +16,16 @@ class MyView: View() {
         tab("Set")
         {
             vbox {
-                val status = textfield("Status bar; do something!")
+                val status = textfield("STATUS BAR")
 
-                val f = textfield("Input something") {
+
+                label("enter the numbers below")
+
+                val f = textfield("") {
                     filterInput { it.controlNewText.isInt() }
                 }
 
-                button("Insert key")
+                button("Insert")
                 {
                     action {
                         val vlue = f.textProperty().get()
@@ -37,7 +40,7 @@ class MyView: View() {
                     }
                 }
 
-                button("Remove key")
+                button("Remove")
                 {
                     action {
                         val vlue = f.textProperty().get()
@@ -51,9 +54,25 @@ class MyView: View() {
                         }
                     }
                 }
+
+                button ("Check")
+                {
+                    action {
+                        val vlue = f.textProperty().get()
+                        try {
+                            val vlue_int = vlue.toInt()
+                            val ans = usr.check(vlue_int)
+                            status.text = ans
+                        } catch (e : NumberFormatException)
+                        {
+                            println("invalid format for a number!!!")
+                            status.text = "Invalid?"
+                        }
+                    }
+                }
             }
         }
-        tab("second")
+        tab("List")
         {
 
         }
@@ -73,7 +92,6 @@ class User(val driver : Driver)
 {
     fun check(key : Int) : String
     {
-        driver.insert(key)
         return when(driver.check_exitence(key))
         {
             true -> "yes"
