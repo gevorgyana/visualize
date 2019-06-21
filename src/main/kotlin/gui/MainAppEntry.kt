@@ -2,7 +2,6 @@ package gui
 
 import javafx.collections.FXCollections
 import tornadofx.*
-
 import proxy.*
 import drivers.*
 
@@ -13,15 +12,61 @@ class MyView: View() {
 
     var usr = User(Driver(HashMap(), BTreeProxy()))
 
-    override val root = vbox {
-        button("Press me ${usr.check(2)}")
-        label("Waiting")
-        listview(controller.values)
+    override val root = tabpane {
+        tab("Set")
+        {
+            vbox {
+                val status = textfield("Status bar; do something!")
+
+                val f = textfield("Input something") {
+                    filterInput { it.controlNewText.isInt() }
+                }
+
+                button("Insert key")
+                {
+                    action {
+                        val vlue = f.textProperty().get()
+                        try {
+                            val vlue_int = vlue.toInt()
+                            usr.insert(vlue_int)
+                        } catch (e : NumberFormatException)
+                        {
+                            println("invalid format for a number!!!")
+                            status.text = "Invalid?"
+                        }
+                    }
+                }
+
+                button("Remove key")
+                {
+                    action {
+                        val vlue = f.textProperty().get()
+                        try {
+                            val vlue_int = vlue.toInt()
+                            usr.remove(vlue_int)
+                        } catch (e : NumberFormatException)
+                        {
+                            println("invalid format for a number!!!")
+                            status.text = "Invalid?"
+                        }
+                    }
+                }
+            }
+        }
+        tab("second")
+        {
+
+        }
     }
 }
 
 class MyController: Controller() {
-    val values = FXCollections.observableArrayList("Alpha","Beta","Gamma","Delta")
+    val values = FXCollections.observableArrayList("Int")
+    fun insert(key : Int, usr : User) = usr.insert(key)
+    fun remove(key: Int, usr : User) = usr.remove(key)
+    fun check(key: Int, usr: User) : String {
+        return usr.check(key)
+    }
 }
 
 class User(val driver : Driver)
@@ -36,4 +81,7 @@ class User(val driver : Driver)
         }
         driver.close()
     }
+
+    fun insert(key: Int) = driver.insert(key)
+    fun remove(key: Int) = driver.remove(key)
 }

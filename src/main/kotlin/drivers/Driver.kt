@@ -15,6 +15,9 @@ data class Rack(var rack: Int)
 * stores a table
 * */
 
+
+// there is no need for a driver. it is just to hode the ugly
+// java interface - but still it needs to be refactored the fuck out
  class Driver ( val table : HashMap<Int, Int>,
                 private val clib: BTreeProxy)
 {
