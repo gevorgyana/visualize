@@ -17,6 +17,7 @@ public class BTreeProxy {
         void btree_init(int expansion_factor);
         void btree_remove_key(int key);
         boolean btree_is_inside_of(int key);
+        void btree_release();
     }
 
     public void insert_key(int key)
@@ -34,5 +35,11 @@ public class BTreeProxy {
         return CLibrary.SINSTANCE.btree_is_inside_of(key);
     }
 
+    public void init() {
+            CLibrary.SINSTANCE.btree_init(2);
+    }
 
+    public void release() {
+        CLibrary.SINSTANCE.btree_release();
+    }
 }
