@@ -4,6 +4,8 @@ import javafx.collections.FXCollections
 import tornadofx.*
 import proxy.*
 import drivers.*
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 class MyApp: App(MyView::class)
 
@@ -17,21 +19,20 @@ class MyView: View() {
         {
             vbox {
                 val status = textfield("STATUS BAR")
-
-
+                val benchmark = textfield("BENCHMARK")
                 label("enter the numbers below")
-
                 val f = textfield("") {
                     filterInput { it.controlNewText.isInt() }
                 }
-
                 button("Insert")
                 {
                     action {
                         val vlue = f.textProperty().get()
                         try {
                             val vlue_int = vlue.toInt()
-                            usr.insert(vlue_int)
+                            status.text = "Inserted"
+                            var time_spent = measureNanoTime{usr.insert(vlue_int)}
+                            benchmark.text = time_spent.toString()
                         } catch (e : NumberFormatException)
                         {
                             println("invalid format for a number!!!")
@@ -46,7 +47,9 @@ class MyView: View() {
                         val vlue = f.textProperty().get()
                         try {
                             val vlue_int = vlue.toInt()
-                            usr.remove(vlue_int)
+                            status.text = "Removed"
+                            var time_spent = measureNanoTime{usr.remove(vlue_int)}
+                            benchmark.text = time_spent.toString()
                         } catch (e : NumberFormatException)
                         {
                             println("invalid format for a number!!!")
@@ -63,8 +66,7 @@ class MyView: View() {
                             val vlue_int = vlue.toInt()
                             val ans = usr.check(vlue_int)
                             status.text = ans
-                        } catch (e : NumberFormatException)
-                        {
+                        } catch (e: NumberFormatException) {
                             println("invalid format for a number!!!")
                             status.text = "Invalid?"
                         }
@@ -72,17 +74,17 @@ class MyView: View() {
                 }
             }
         }
-        tab("List")
-        {
-
-        }
     }
 }
 
 class MyController: Controller() {
     val values = FXCollections.observableArrayList("Int")
-    fun insert(key : Int, usr : User) = usr.insert(key)
-    fun remove(key: Int, usr : User) = usr.remove(key)
+    fun insert(key : Int, usr : User) : Unit {
+        usr.insert(key)
+    }
+    fun remove(key: Int, usr : User) : Unit {
+        usr.remove(key)
+    }
     fun check(key: Int, usr: User) : String {
         return usr.check(key)
     }
@@ -100,6 +102,6 @@ class User(val driver : Driver)
         driver.close()
     }
 
-    fun insert(key: Int) = driver.insert(key)
-    fun remove(key: Int) = driver.remove(key)
+    fun insert(key: Int) : Unit = driver.insert(key)
+    fun remove(key: Int) : Unit = driver.remove(key)
 }
